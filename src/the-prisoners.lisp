@@ -3,8 +3,8 @@
 (named-readtables:in-readtable clj:syntax)
 
 ;;;;;;;;;; Basics
-(defun coop? (res) (eq :cooperate res))
-(defun defe? (res) (eq :defect res))
+(defun c? (res) (eq :cooperate res))
+(defun d? (res) (eq :defect res))
 
 ;;;;;;;;;; Scenarios
 (defparameter dilemma
@@ -22,6 +22,11 @@
    3 3  0 0
    0 0  0 0))
 
+(defparameter theft
+  (payoff-matrix
+   0 0   -3 3
+   3 -3   0 0))
+
 (defparameter trap
   (payoff-matrix
    -3 -3  2 2
@@ -31,41 +36,6 @@
   (payoff-matrix
    3 3  0 0
    0 0  3 3))
-
-;;;;;;;;;; Games
-(defun play! (game &rest players)
-  (apply game players))
-
-(defun matches (elems &key (mirror? t))
-  (loop for (a . rest) on elems while rest
-      if mirror? collect (cons a a)
-      append (loop for b in rest collect (cons a b))))
-
-(defun all-against-all! (game matches)
-  (reduce
-   (lambda (memo res)
-     (reduce
-      (lambda (memo pair)
-	(merge-with #'+ memo {(car pair) (cdr pair)}))
-      res :initial-value memo))
-   (loop for (a . b) in matches
-      collect (let ((res (play! game a b)))
-		(list (cons (lookup a :name) (first res)) (cons (lookup b :name) (second res)))))
-   :initial-value {}))
-
-(defun one-time (player-a player-b &key (scenario dilemma))
-  (let ((a (play player-a))
-	(b (play player-b)))
-    (update! player-a b)
-    (update! player-b a)
-    (funcall scenario a b)))
-
-(defun iterated (&key (iterations 10))
-  (lambda (player-a player-b)
-    (loop repeat iterations
-       for (a b) = (one-time player-a player-b)
-       sum a into a-sum sum b into b-sum
-       finally (return (list a-sum b-sum)))))
 
 ;;;;;;;;;; Players
 (defun update! (player action)
@@ -97,7 +67,7 @@
   (let ((prev :cooperate))
     {:name :robin
 	   :strategy (lambda ()
-		       (if (coop? prev)
+		       (if (c? prev)
 			   (setf prev :defect)
 			   (setf prev :cooperate)))}))
 
@@ -111,9 +81,9 @@
 (defun dantes ()
   (let ((plan :cooperate))
     {:name :dantes
-     :update (lambda (action) (when (defe? action) (setf plan :defect)))
+     :update (lambda (action) (when (d? action) (setf plan :defect)))
      :strategy (lambda () plan)
-     :reset (lambda () (setf prev nil))}))
+     :reset (lambda () (setf plan nil))}))
 
 ;;;;;;;;;; Gameplay
 (defun get-by-prefix (lst prefix)
@@ -123,23 +93,28 @@
 		 (== (subseq elem 0 l) prefix))
        do (return elem))))
 
+(defun get-repl-choice (adventure)
+  (let* ((responses (mapcar #'string-downcase (list (lookup adventure :cooperate) (lookup adventure :defect))))
+	 (r-map {(string-downcase (lookup adventure :cooperate)) :cooperate
+		 (string-downcase (lookup adventure :defect)) :defect})
+	 (by-pref nil)
+	 (resp ""))
+    (loop until (and (symbolp resp)
+		     (setf by-pref
+			   (get-by-prefix
+			    responses
+			    (string-downcase (symbol-name resp)))))
+       do (format
+	   t "~a/~a:"
+	   (lookup adventure :cooperate)
+	   (lookup adventure :defect))
+       do (setf resp (read)))
+    (lookup r-map by-pref)))
+
 (defun repl! (adventure)
   (format t "~%~%~a~%~%" (lookup adventure :description))
   (when (contains? adventure :continue)
-    (let* ((responses (list (lookup adventure :cooperate) (lookup adventure :defect)))
-	   (resp-map {(lookup adventure :cooperate) :cooperate
-		      (lookup adventure :defect) :defect})
-	   (response ""))
-      (loop until (and (symbolp response)
-		       (get-by-prefix
-			responses
-			(string-downcase (symbol-name response))))
-	 do (format
-	     t "~a/~a:"
-	     (string-capitalize (lookup adventure :cooperate))
-	     (string-capitalize (lookup adventure :defect)))
-	 do (setf response (read)))
-      (let ((choice (lookup resp-map (get-by-prefix responses (string-downcase (symbol-name response))))))
-	(repl! (funcall (lookup adventure :continue) choice))))))
+    (let ((choice (get-repl-choice adventure)))
+      (repl! (funcall (lookup adventure :continue) choice)))))
 
 (defun server! () :todo)
