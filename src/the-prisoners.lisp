@@ -6,20 +6,33 @@
 (defun coop? (res) (eq :cooperate res))
 (defun defe? (res) (eq :defect res))
 
-(defun pick (lst)
-  (nth (random (length lst)) lst))
+;;;;;;;;;; Scenarios
+(defparameter stag-hunt
+  (payoff-matrix
+   6 6  0 1
+   1 0  1 1))
 
-(defun shuffle (sequence)
-  (let ((seq (copy-list sequence)))
-    (loop for i from (length sequence) downto 2
-       do (rotatef (elt seq (random i))
-                   (elt seq (1- i))))
-    seq))
+(defparameter dilemma
+  (payoff-matrix
+   3 3  1 5
+   5 1  0 0))
 
-(defun take (n lst)
-  (loop repeat n for itm in lst
-     collect itm))
+(defparameter free-trade
+  (payoff-matrix
+   3 3  0 0
+   0 0  0 0))
 
+(defparameter trap
+  (payoff-matrix
+   -3 -3  2 2
+    2  2  0 0))
+
+(defparameter mutual-prediction
+  (payoff-matrix
+   3 3  0 0
+   0 0  3 3))
+
+;;;;;;;;;; Games
 (defun play! (game &rest players)
   (apply game players))
 
@@ -27,16 +40,6 @@
   (loop for (a . rest) on elems while rest
       if mirror? collect (cons a a)
       append (loop for b in rest collect (cons a b))))
-
-(defun winner (results)
-  (let ((max nil)
-	(score nil))
-    (loop for (k . v) in (as-list results)
-       do (if (or (not score) (> v score))
-	      (setf score v
-		    max (cons k v))))
-    max))
-;(all-against-all! (iterated) (matches (list (cooperator) (defector) (gambler) (gambler :cooperate 5) (gambler :defect 5) (polo) (dantes) (robin))))
 
 (defun all-against-all! (game matches)
   (reduce
@@ -50,38 +53,29 @@
 		(list (cons (lookup a :name) (first res)) (cons (lookup b :name) (second res)))))
    :initial-value {}))
 
-;;;;;;;;;; Games
-(defun one-time (player-a player-b)
-  (let ((a (funcall (lookup player-a :strategy)))
-	(b (funcall (lookup player-b :strategy))))
-    (if-let (update (lookup player-a :update))
-      (funcall update b))
-    (if-let (update (lookup player-b :update))
-      (funcall update a))
-    (cond ((and (coop? a) (coop? b))
-	   (list 3 3))
-	  ((and (coop? a) (defe? b))
-	   (list 1 5))
-	  ((and (defe? a) (coop? b))
-	   (list 5 1))
-	  (t
-	   (list 0 0)))))
+(defun one-time (player-a player-b &key (scenario dilemma))
+  (let ((a (play player-a))
+	(b (play player-b)))
+    (update! player-a b)
+    (update! player-b a)
+    (funcall scenario a b)))
 
 (defun iterated (&key (iterations 10))
   (lambda (player-a player-b)
     (loop repeat iterations
        for (a b) = (one-time player-a player-b)
        sum a into a-sum sum b into b-sum
-       finally (progn
-		 (reset! player-a)
-		 (reset! player-b)
-		 (return (list a-sum b-sum))))))
+       finally (return (list a-sum b-sum)))))
 
 ;;;;;;;;;; Players
-(defun reset! (player)
-  (if-let (rst (lookup player :reset))
-    (funcall rst))
+(defun update! (player action)
+  (if-let (upd (lookup player :update))
+    (funcall upd action))
   player)
+
+(defun play (player)
+  (funcall (lookup player :strategy)))
+
 
 (defun defector ()
   {:name :defector :strategy (lambda () :defect)})
@@ -95,6 +89,7 @@
 		'list
 		(loop repeat cooperate collect :cooperate)
 		(loop repeat defect collect :defect))))
+    (lambda () (nth (random total) moves))
     {:name (intern (format nil "GAMBLER~a/~a" cooperate defect) :keyword)
 	   :strategy (lambda () (nth (random total) moves))}))
 
@@ -120,10 +115,31 @@
      :strategy (lambda () plan)
      :reset (lambda () (setf prev nil))}))
 
-(defun birth ()
-  (funcall
-   (pick
-    (list
-     #'dantes #'polo #'robin #'cooperator #'defector #'gambler
-     (lambda () (gambler :cooperate 5))
-     (lambda () (gambler :defect 5))))))
+;;;;;;;;;; Gameplay
+(defun get-by-prefix (lst prefix)
+  (let ((l (length prefix)))
+    (loop for elem in lst
+       when (and (>= (length elem) l)
+		 (== (subseq elem 0 l) prefix))
+       do (return elem))))
+
+(defun repl! (adventure)
+  (format t "~%~%~a~%~%" (lookup adventure :description))
+  (when (contains? adventure :continue)
+    (let* ((responses (list (lookup adventure :cooperate) (lookup adventure :defect)))
+	   (resp-map {(lookup adventure :cooperate) :cooperate
+		      (lookup adventure :defect) :defect})
+	   (response ""))
+      (loop until (and (symbolp response)
+		       (get-by-prefix
+			responses
+			(string-downcase (symbol-name response))))
+	 do (format
+	     t "~a/~a:"
+	     (string-capitalize (lookup adventure :cooperate))
+	     (string-capitalize (lookup adventure :defect)))
+	 do (setf response (read)))
+      (let ((choice (lookup resp-map (get-by-prefix responses (string-downcase (symbol-name response))))))
+	(repl! (funcall (lookup adventure :continue) choice))))))
+
+(defun server! () :todo)

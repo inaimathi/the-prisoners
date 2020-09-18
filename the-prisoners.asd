@@ -10,6 +10,8 @@
   :components ((:module
 		src :components
 		((:file "package")
+		 (:file "util")
+		 (:file "adventures")
 		 (:file "the-prisoners")))))
 
 (asdf:defsystem #:the-prisoners-test
