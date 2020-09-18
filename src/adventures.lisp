@@ -7,7 +7,7 @@
 
 (defun mk-adventure ()
   (let ((prisoner (polo))
-	(scenario free-trade))
+	(scenario trade))
     {:description
      "A stranger approaches. \"I see you have baubles. Would you like to trade, that we both may enrich ourselves?\""
      :cooperate "accept" :defect "refuse" :prisoner prisoner :scenario scenario

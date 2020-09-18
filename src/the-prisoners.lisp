@@ -7,17 +7,17 @@
 (defun defe? (res) (eq :defect res))
 
 ;;;;;;;;;; Scenarios
-(defparameter stag-hunt
-  (payoff-matrix
-   6 6  0 1
-   1 0  1 1))
-
 (defparameter dilemma
   (payoff-matrix
    3 3  1 5
    5 1  0 0))
 
-(defparameter free-trade
+(defparameter stag-hunt
+  (payoff-matrix
+   3 3  0 1
+   1 0  1 1))
+
+(defparameter trade
   (payoff-matrix
    3 3  0 0
    0 0  0 0))
