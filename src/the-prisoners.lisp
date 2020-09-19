@@ -86,40 +86,4 @@
      :reset (lambda () (setf plan nil))}))
 
 ;;;;;;;;;; Gameplay
-(defun get-by-prefix (lst prefix)
-  (let ((l (length prefix)))
-    (loop for elem in lst
-       when (and (>= (length elem) l)
-		 (== (subseq elem 0 l) prefix))
-       do (return elem))))
-
-(defun get-repl-choice (adventure)
-  (let* ((responses (mapcar #'string-downcase (list (lookup adventure :cooperate) (lookup adventure :defect))))
-	 (r-map {(string-downcase (lookup adventure :cooperate)) :cooperate
-		 (string-downcase (lookup adventure :defect)) :defect})
-	 (by-pref nil)
-	 (resp ""))
-    (loop until (and (symbolp resp)
-		     (setf by-pref
-			   (get-by-prefix
-			    responses
-			    (string-downcase (symbol-name resp)))))
-       do (format
-	   t "~a/~a:"
-	   (lookup adventure :cooperate)
-	   (lookup adventure :defect))
-       do (setf resp (read)))
-    (lookup r-map by-pref)))
-
-;; start with some number of points
-;; go through a bunch of decisions
-;; if you get to 0, you die!
-;; if you get to the end, you get victory!
-
-(defun repl! (adventure)
-  (format t "~%~%~a~%~%" (lookup adventure :description))
-  (when (contains? adventure :continue)
-    (let ((choice (get-repl-choice adventure)))
-      (repl! (funcall (lookup adventure :continue) choice)))))
-
 (defun server! () :todo)

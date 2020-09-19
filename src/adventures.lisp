@@ -4,7 +4,7 @@
 (defparameter ending
   {:description "You have come to the end of your long, perilous journey."})
 
-(defun random-scenario ()
+(defun random-encounter ()
   (pick
    (list
     {:description
@@ -46,5 +46,5 @@
 (defun mk-adventure (&key (scenarios 5))
   (let ((adventure ending))
     (loop repeat scenarios
-       do (setf adventure (wrap-scenario adventure (random-scenario))))
+       do (setf adventure (wrap-scenario adventure (random-encounter))))
     adventure))
