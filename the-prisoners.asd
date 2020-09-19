@@ -1,9 +1,9 @@
 ;;;; the-prisoners.asd
 
 (asdf:defsystem #:the-prisoners
-  :description "Describe the-prisoners here"
-  :author "Your Name <your.name@example.com>"
-  :license "Specify license here"
+  :description "A game-theoretic roguelikelike"
+  :author "inaimathi <leo.zovic@gmail.com>"
+  :license "AGPL3"
   :version "0.0.1"
   :serial t
   :depends-on (#:clj)
@@ -12,12 +12,13 @@
 		((:file "package")
 		 (:file "util")
 		 (:file "adventures")
-		 (:file "the-prisoners")))))
+		 (:file "the-prisoners")
+		 (:file "repl")))))
 
 (asdf:defsystem #:the-prisoners-test
   :description "Test suite for :the-prisoners"
-  :author "Your Name <your.name@example.com>"
-  :license "Specify license here"
+  :author "inaimathi <leo.zovic@gmail.com>"
+  :license "AGPL3"
   :serial t
   :depends-on (#:the-prisoners #:test-utils)
   :defsystem-depends-on (#:prove-asdf)

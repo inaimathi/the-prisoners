@@ -31,3 +31,10 @@
      #'+
      (funcall matrix-a a b)
      (funcall matrix-b a b))))
+
+(defun get-by-prefix (lst prefix)
+  (let ((l (length prefix)))
+    (loop for elem in lst
+       when (and (>= (length elem) l)
+		 (== (subseq elem 0 l) prefix))
+       do (return elem))))
