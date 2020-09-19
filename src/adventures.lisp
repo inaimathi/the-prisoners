@@ -9,7 +9,7 @@
    (list
     {:description
      "A stranger approaches. \"I see you have baubles. Would you like to trade, that we both may enrich ourselves?\""
-     :cooperate "accept" :defect "refuse" :prisoner (polo) :scenario trade}
+     :cooperate "Accept" :defect "Refuse" :prisoner (polo) :scenario trade}
     {:description
      "A muscled street thug approachs, knife drawn. \"Yer money or yer life, fop!\""
      :cooperate "surrender" :defect "run" :prisoner (defector) :scenario theft}
@@ -35,17 +35,16 @@
 (defun wrap-scenario (adventure scenario)
   (insert
    scenario
-   (cons
-    :continue
-    (lambda (choice)
-      (let* ((them (lookup scenario :prisoner))
-	     (their-choice (play them)))
-	(update! them choice)
-	(funcall (lookup scenario :scenario) choice their-choice)
-	adventure)))))
+   :continue
+   (lambda (choice)
+     (let* ((them (lookup scenario :prisoner))
+	    (their-choice (play them))
+	    (res (funcall (lookup scenario :scenario) choice their-choice)))
+       (update! them choice)
+       (insert adventure :score (first res))))))
 
 (defun mk-adventure (&key (scenarios 5))
   (let ((adventure ending))
     (loop repeat scenarios
        do (setf adventure (wrap-scenario adventure (random-scenario))))
-    adventure))
+    (insert adventure :score 5)))

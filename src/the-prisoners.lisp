@@ -29,8 +29,8 @@
 
 (defparameter trap
   (payoff-matrix
-   -3 -3  2 2
-    2  2  0 0))
+   -3 -3  1 1
+    1  1  0 0))
 
 (defparameter mutual-prediction
   (payoff-matrix
@@ -110,6 +110,11 @@
 	   (lookup adventure :defect))
        do (setf resp (read)))
     (lookup r-map by-pref)))
+
+;; start with some number of points
+;; go through a bunch of decisions
+;; if you get to 0, you die!
+;; if you get to the end, you get victory!
 
 (defun repl! (adventure)
   (format t "~%~%~a~%~%" (lookup adventure :description))
