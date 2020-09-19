@@ -47,4 +47,4 @@
   (let ((adventure ending))
     (loop repeat scenarios
        do (setf adventure (wrap-scenario adventure (random-scenario))))
-    (insert adventure :score 5)))
+    adventure))
