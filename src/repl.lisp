@@ -1,22 +1,23 @@
 (in-package #:the-prisoners)
 (named-readtables:in-readtable clj:syntax)
 
+(defun display-repl-choice (adventure)
+  (format
+   t "~a/~a:"
+   (lookup adventure :cooperate)
+   (lookup adventure :defect))
+  (force-output))
+
 (defun get-repl-choice (adventure)
   (let* ((responses (mapcar #'string-downcase (list (lookup adventure :cooperate) (lookup adventure :defect))))
 	 (r-map {(string-downcase (lookup adventure :cooperate)) :cooperate
 		 (string-downcase (lookup adventure :defect)) :defect})
-	 (by-pref nil)
-	 (resp ""))
-    (loop until (and (symbolp resp)
-		     (setf by-pref
-			   (get-by-prefix
-			    responses
-			    (string-downcase (symbol-name resp)))))
-       do (format
-	   t "~a/~a:"
-	   (lookup adventure :cooperate)
-	   (lookup adventure :defect))
-       do (setf resp (read)))
+	 (by-pref nil))
+    (display-repl-choice adventure)
+    (let ((resp (read-line)))
+      (loop until (setf by-pref (get-by-prefix responses (string-downcase resp)))
+	 do (display-repl-choice adventure)
+	 do (setf resp (read-line))))
     (lookup r-map by-pref)))
 
 (defun to-adventure! (player adventure)

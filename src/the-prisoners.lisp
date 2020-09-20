@@ -87,3 +87,15 @@
 
 ;;;;;;;;;; Gameplay
 (defun server! () :todo)
+
+(defun main ()
+  (repl! (mk-adventure)))
+
+(defun build! ()
+  (sb-ext:save-lisp-and-die
+   (or
+    #+win32#p"the-prisoners.exe"
+    #+darwin#p"the-prisoners.bin"
+    #+linux#p"the-prisoners"
+    (error "Unsupported build platform. Got ~A" *features*))
+   :toplevel #'main :executable t))

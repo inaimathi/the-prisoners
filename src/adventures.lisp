@@ -12,7 +12,7 @@
      :cooperate "Accept" :defect "Refuse" :prisoner (polo) :scenario trade}
     {:description
      "A muscled street thug approachs, knife drawn. \"Yer money or yer life, fop!\""
-     :cooperate "surrender" :defect "run" :prisoner (defector) :scenario theft}
+     :cooperate "Surrender" :defect "Run" :prisoner (defector) :scenario theft}
     {:description
      "As you walk through an expansive market square, a gambler motions you over. \"Fancy your chances at evens or odds?"
      :cooperate "Evens!" :defect "Odds!" :prisoner (gambler) :scenario mutual-prediction}

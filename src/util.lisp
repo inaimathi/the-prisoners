@@ -2,6 +2,10 @@
 (named-readtables:in-readtable clj:syntax)
 
 ;;;;;;;;;; Basics
+(let ((ct 0))
+  (defun log! (&rest message)
+    (format t "-=~3d= ~s~%" (incf ct) message)))
+
 (defun pick (lst)
   (nth (random (length lst)) lst))
 

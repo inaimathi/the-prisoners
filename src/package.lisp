@@ -1,4 +1,5 @@
 ;;;; src/package.lisp
 
 (defpackage #:the-prisoners
-  (:use #:cl #:clj))
+  (:use #:cl #:clj)
+  (:export #:build! #:main))

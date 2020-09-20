@@ -11,6 +11,7 @@
 		src :components
 		((:file "package")
 		 (:file "util")
+		 (:file "prose")
 		 (:file "adventures")
 		 (:file "the-prisoners")
 		 (:file "repl")))))
