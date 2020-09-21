@@ -75,20 +75,19 @@
   (let ((prev nil))
     {:name :polo
      :update (lambda (opponent-action) (setf prev opponent-action))
-     :strategy (lambda () (or prev :cooperate))
-     :reset (lambda () (setf prev nil))}))
+     :strategy (lambda () (or prev :cooperate))}))
 
 (defun dantes ()
   (let ((plan :cooperate))
     {:name :dantes
      :update (lambda (action) (when (d? action) (setf plan :defect)))
-     :strategy (lambda () plan)
-     :reset (lambda () (setf plan nil))}))
+     :strategy (lambda () plan)}))
 
 ;;;;;;;;;; Gameplay
 (defun server! () :todo)
 
 (defun main ()
+  (setf *base* (fact-base:base! (merge-pathnames *dir* "history.base")))
   (repl! (mk-adventure)))
 
 (defun build! ()

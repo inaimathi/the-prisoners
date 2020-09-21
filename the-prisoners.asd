@@ -6,11 +6,12 @@
   :license "AGPL3"
   :version "0.0.1"
   :serial t
-  :depends-on (#:clj)
+  :depends-on (#:iterate #:clj #:fact-base)
   :components ((:module
 		src :components
 		((:file "package")
 		 (:file "util")
+		 (:file "history")
 		 (:file "prose")
 		 (:file "adventures")
 		 (:file "the-prisoners")
