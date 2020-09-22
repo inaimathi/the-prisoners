@@ -2,7 +2,9 @@
 (named-readtables:in-readtable clj:syntax)
 
 (defparameter ending
-  {:description "You have come to the end of your long, perilous journey."})
+  {:description
+   "You have come to the end of your long, perilous journey."
+   :ending :success})
 
 (defun random-encounter ()
   (let ((scenario (pick (list trade theft mutual-prediction stag-hunt trap dilemma)))
@@ -12,15 +14,18 @@
      :description (!!scenario-description {} prisoner scenario)
      :prisoner prisoner :scenario scenario)))
 
+(defun continue! (encounter your-choice their-choice)
+  (funcall (lookup encounter :continue)
+	   your-choice their-choice))
+
 (defun wrap-encounter (adventure encounter)
   (insert
    encounter
    :continue
-   (lambda (choice)
+   (lambda (your-choice their-choice)
      (let* ((them (lookup encounter :prisoner))
-	    (their-choice (play them))
-	    (res (funcall (lookup encounter :scenario) choice their-choice)))
-       (update! them choice)
+	    (res (funcall (lookup encounter :scenario) your-choice their-choice)))
+       (update! them your-choice)
        (insert adventure :score (first res))))))
 
 (defun mk-adventure (&key (encounters 5))

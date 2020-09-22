@@ -3,7 +3,7 @@
 
 (defparameter *dir* (merge-pathnames (user-homedir-pathname) ".the-prisoners"))
 
-(defparameter *base* nil)
+(defparameter *base* (fact-base:base! (merge-pathnames *dir* "history.base")))
 
 (defun facts->map (res)
   (format t "~s~%" res)
@@ -26,6 +26,17 @@
 	 collect (list k v))
       (list :strategy strategy)
       (list :source source)))))
+
+(defun prisoner-incf! (prisoner key &key (by 1))
+  (let ((id (lookup prisoner :id)))
+    (if-let (old (first (fact-base:lookup *base* :a id :b key)))
+      (let ((new (+ (third old) by)))
+
+	(fact-base:change! *base* old (list id key new))
+	new))))
+
+(defun update-prisoner! (prisoner)
+  (for-al))
 
 (defun prisoner-by (&key id strategy source)
   (if id
