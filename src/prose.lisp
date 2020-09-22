@@ -58,5 +58,14 @@ As a consolation, you have been freed.")
    scenario))
 
 (defun !!scenario-aftermath (player prisoner scenario player-choice prisoner-choice)
-  (declare (ignore player prisoner scenario player-choice prisoner-choice))
-  "")
+  (declare (ignore player prisoner))
+  (lookup
+   {(list trade :cooperate :cooperate)
+    "You trade some of the useless items you are carrying for some of the strangers' valuable goods. You suspect they see it the same way."
+    (list trade :cooperate :defect)
+    "\"Pardon; I mistakenly thought you had something I wanted\". They walk away haughtily."
+    (list trade :defect :cooperate)
+    "You refuse the trade."
+    (list trade :defect :defect)
+    "You refuse the trade. When the stranger hears this, they shout \"Well I didn't want your garbage anyway!\" and storms off."}
+   (list scenario player-choice prisoner-choice) :default ""))
