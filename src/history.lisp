@@ -19,24 +19,15 @@
 
 (defun store-prisoner! (prisoner &key (strategy :manual) (source :local))
   (let ((strategy (lookup prisoner :strategy :default strategy)))
-    (fact-base:multi-insert!
-     *base*
-     (insert
-      (loop for (k . v) in (as-list (dissoc prisoner :strategy))
-	 collect (list k v))
-      (list :strategy strategy)
-      (list :source source)))))
-
-(defun prisoner-incf! (prisoner key &key (by 1))
-  (let ((id (lookup prisoner :id)))
-    (if-let (old (first (fact-base:lookup *base* :a id :b key)))
-      (let ((new (+ (third old) by)))
-
-	(fact-base:change! *base* old (list id key new))
-	new))))
-
-(defun update-prisoner! (prisoner)
-  (for-al))
+    (insert
+     prisoner
+     :id (fact-base:multi-insert!
+	  *base*
+	  (insert
+	   (loop for (k . v) in (as-list (dissoc prisoner :strategy))
+	      collect (list k v))
+	   (list :strategy strategy)
+	   (list :source source))))))
 
 (defun prisoner-by (&key id strategy source)
   (if id
@@ -50,5 +41,10 @@
 		     (source `(?id :source ,source))))
 	 :in *base* :collect ?id))))
 
-;; (defun prisoner! (name &key (strategy :manual) (source :local))
-;;   )
+(defun prisoner-incf! (prisoner key &key (by 1))
+  (let ((id (lookup prisoner :id)))
+    (if-let (old (first (fact-base:lookup *base* :a id :b key)))
+      (let ((new (+ (third old) by)))
+
+	(fact-base:change! *base* old (list id key new))
+	new))))

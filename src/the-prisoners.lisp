@@ -87,8 +87,9 @@
 (defun server! () :todo)
 
 (defun main ()
-  (setf *base* (fact-base:base! (merge-pathnames *dir* "history.base")))
-  (repl! (mk-adventure)))
+  (setf *dir* (merge-pathnames (user-homedir-pathname) ".the-prisoners")
+	*base* (fact-base:base! (merge-pathnames *dir* "history.base")))
+  (repl!))
 
 (defun build! ()
   (sb-ext:save-lisp-and-die

@@ -1,6 +1,54 @@
 (in-package #:the-prisoners)
 (named-readtables:in-readtable clj:syntax)
 
+(defparameter *GRAMMARS*
+  {:proper-name
+   {:root
+    '((:starter :link :ender) (:starter :partition :ender)
+      (:starter :partition :link :ender) (:starter :partition :root)
+      (:starter :link :link :ender) (:starter :ender))
+
+    :starter
+    '((:starter :link)
+      "aa" "ae" "al" "an" "ao" "ar" "at" "az" "be" "bi" "ce" "di" "ed" "en" "er"
+      "es" "ge" "in" "is" "la" "le" "ma" "on" "or" "qu" "ra" "re" "ri" "so" "te"
+      "ti" "us" "ve" "xe" "za")
+    :ender
+    '((:link :ender)
+      "aa" "al" "at" "di" "ti" "so" "ce" "re" "za" "in" "ed" "or" "an" "ma" "ab"
+      "ge" "aq" "en" "ri" "ve" "ag" "qu" "us" "es" "ex" "ae" "on" "bi" "xe" "le"
+      "is" "er" "be" "la" "ar" "az" "io" "sb" "te" "ra" "ia" "nb")
+    :link
+    '((:link :link) (:link :link)
+      "at" "an" "ri" "es" "ed" "bi" "ce" "us" "on" "er" "ti" "ve" "ra" "la" "le"
+      "ge" "i" "u" "xe" "in" "di" "so" "ar" "e" "s" "na" "is" "za" "re" "ma" "or"
+      "be" "en" "qu" "a" "n" "r" "te" "t")
+    :partition '("-" "'" " ")}
+
+   :prisoner-name
+   {:root
+    '((:proper-name) (:proper-name :title))
+    :title '((:of-title) (:the-title) (:of-title :the-title) (:the-title :of-title))
+    :of-title '((" of " :proper-name))
+    :the-title '((" the " :adjective))
+    :adjective
+    '("obsequious" "brilliant" "great" "glorious")}})
+
+(defun expand-production (production grammar)
+  (cond ((stringp production) production)
+	((symbolp production)
+	 (if-let (g (lookup grammar production))
+	   (expand-production (pick g) grammar)
+	   (generate-a production)))
+	((listp production)
+	 (reduce
+	  (lambda (memo b)
+	    (concatenate 'string memo (expand-production b grammar)))
+	  (cons "" production)))))
+
+(defun generate-a (kind-of-thing)
+  (expand-production :root (lookup *GRAMMARS* kind-of-thing)))
+
 (defun !!death (player prisoner scenario)
   (declare (ignore player prisoner scenario))
   "You bleed out on the cobblestones of the city market.

@@ -32,7 +32,7 @@
 		(next (continue! adventure choice their-choice))
 		(score (if-let (s (lookup next :score)) (prisoner-incf! player :score :by s))))
 	   (prisoner-incf! player :encounters)
-	   (format t "~a~%" (!!scenario-aftermath player prisoner scenario choice their-choice))
+	   (format t "~%~a~%" (!!scenario-aftermath player prisoner scenario choice their-choice))
 	   (play-scenario!
 	    (insert player :score score)
 	    (if (> score 0)
@@ -43,7 +43,20 @@
 	 nil)))
 
 (defun to-adventure! (adventure)
-  (format t "~%-==E- The Prisoners -Ǝ==-~%~%")
+  (format t "~%           ▄▄▄█████▓ ██░ ██ ▓████
+           ▓  ██▒ ▓▒▓██░ ██▒▓█  ▀
+           ▒ ▓██░ ▒░▒██▀▀██░▒███
+           ░ ▓██▓ ░ ░▓█ ░██ ▒█  ▄
+             ▒██▒ ░ ░█▓ ░██▓░████▒
+ ██▓███   ██▀███   ██▓  ██████  ▒█████   ███▄    █ ▓█████  ██▀███    █████
+▓██░  ██▒▓██ ▒ ██▒▓██▒▒██    ▒ ▒██▒  ██▒ ██ ▀█   █ ▓█   ▀ ▓██ ▒ ██▒▒██
+▓██░ ██▓▒▓██ ░▄█ ▒▒██▒░ ▓██▄   ▒██░  ██▒▓██  ▀█ ██▒▒███   ▓██ ░▄█ ▒░ ▓██▄
+▒██▄█▓▒ ▒▒██▀▀█▄  ░██░  ▒   ██▒▒██   ██░▓██▒  ▐▌██▒▒▓█  ▄ ▒██▀▀█▄    ▒   ██
+▒██▒ ░  ░░██▓ ▒██▒░██░▒██████▒▒░ ████▓▒░▒██░   ▓██░░▒████▒░██▓ ▒██▒▒██████▒
+▒▓▒░ ░  ░░ ▒▓ ░▒▓░░▓  ▒ ▒▓▒ ▒ ░░ ▒░▒░▒░ ░ ▒░   ▒ ▒ ░░ ▒░ ░░ ▒▓ ░▒▓░▒ ▒▓▒ ▒
+            ░      ░        ░      ░ ░           ░    ░  ░   ░           ░~%~%")
+
+
   (if-let (prisoner (first (prisoner-by :source :local)))
     (progn
       (format t "~%Welcome back, ~a. Prepare for your next adventure.~%~%" (lookup prisoner :name))
@@ -51,7 +64,7 @@
     (progn
       (format t "~% What is your name?: ")
       (let* ((player-name (read-line))
-	     (prisoner {:name player-name :score 1 :adventures 0 :encounters 0}))
+	     (prisoner (store-prisoner! {:name player-name :score 1 :adventures 0 :encounters 0})))
 	(store-prisoner! prisoner)
 	(format t "~%Welcome, ~a~%~%" player-name)
 	(format t "You may roam this world to your heart's content,~%but when you encounter your opposite number,~%know that you are the prisoners of your history.")
