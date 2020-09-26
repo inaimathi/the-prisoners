@@ -90,7 +90,7 @@ As a consolation, you have been freed.")
     (lookup
      {:defector {:cooperate "Surrender" :defect "Run"}}
      (lookup prisoner :name)
-     :default {:cooperate "It's too tempting" :defect "No"})
+     :default {:cooperate "No" :defect "It's too tempting"})
 
     mutual-prediction
     {:cooperate "Evens!" :defect "Odds!"}

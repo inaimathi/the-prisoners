@@ -29,12 +29,15 @@
 	      (cons :defect :defect) (list dd-a dd-b)}))
     (lambda (a b) (lookup tbl (cons a b)))))
 
+(defun collapse (matrix a b)
+  (funcall matrix a b))
+
 (defun combine (matrix-a matrix-b)
   (lambda (a b)
     (mapcar
      #'+
-     (funcall matrix-a a b)
-     (funcall matrix-b a b))))
+     (collapse matrix-a a b)
+     (collapse matrix-b a b))))
 
 (defun get-by-prefix (lst prefix)
   (let ((l (length prefix)))
@@ -42,3 +45,13 @@
        when (and (>= (length elem) l)
 		 (== (subseq elem 0 l) prefix))
        do (return elem))))
+
+(defun eval-into-package (package)
+  (let ((*package* (find-package package))
+	(form (read)))
+    (walk
+     (fn (k &optional (v nil supplied?))
+	 (if (and (symbolp atom) (not (== *package* (symbol-package atom))))
+	     (intern (symbol-name atom) *package*)
+	     atom))
+     form)))

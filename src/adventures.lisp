@@ -24,7 +24,7 @@
    :continue
    (lambda (your-choice their-choice)
      (let* ((them (lookup encounter :prisoner))
-	    (res (funcall (lookup encounter :scenario) your-choice their-choice)))
+	    (res (collapse (lookup encounter :scenario) your-choice their-choice)))
        (update! them your-choice)
        (insert adventure :score (first res))))))
 

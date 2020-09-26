@@ -6,13 +6,17 @@
 (defparameter *base* (fact-base:base! (merge-pathnames *dir* "history.base")))
 
 (defun facts->map (res)
-  (format t "~s~%" res)
   (let ((id (caar res)))
     (insert
      (reduce
       (lambda (memo fact)
 	(if (== id (first fact))
-	    (insert memo (second fact) (third fact))
+	    (cond ((not (contains? memo (second fact)))
+		   (insert memo (second fact) (third fact)))
+		  ((listp (lookup memo (second fact)))
+		   (update memo (second fact) (fn (v) (cons (third fact) v))))
+		  (t
+		   (update memo (second fact) (fn (v) (list (third fact) v)))))
 	    memo))
       res :initial-value {})
      :id id)))
@@ -41,6 +45,12 @@
 		     (source `(?id :source ,source))))
 	 :in *base* :collect ?id))))
 
+(defun first-living-prisoner ()
+  (->> (prisoner-by :source :local)
+    (remove-if
+     (fn (p) (>= 0 (lookup p :score))))
+    first))
+
 (defun prisoner-incf! (prisoner key &key (by 1))
   (let ((id (lookup prisoner :id)))
     (if-let (old (first (fact-base:lookup *base* :a id :b key)))
@@ -48,3 +58,9 @@
 
 	(fact-base:change! *base* old (list id key new))
 	new))))
+
+(defun level-up! (game-stage)
+  (fact-base:insert-if-unique! *base* (list -1 :game-stage game-stage)))
+
+(defun game-settings ()
+  (facts->map (fact-base:for-all `(-1 ?k ?v) :in *base* :collect (list -1 ?k ?v))))
