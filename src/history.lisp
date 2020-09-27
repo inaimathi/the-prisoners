@@ -22,16 +22,18 @@
      :id id)))
 
 (defun store-prisoner! (prisoner &key (strategy :manual) (source :local))
-  (let ((strategy (lookup prisoner :strategy :default strategy)))
-    (insert
-     prisoner
-     :id (fact-base:multi-insert!
-	  *base*
-	  (insert
-	   (loop for (k . v) in (as-list (dissoc prisoner :strategy))
-	      collect (list k v))
-	   (list :strategy strategy)
-	   (list :source source))))))
+  (let ((strategy (lookup prisoner :strategy :default strategy))
+	(prisoner (insert
+		   prisoner
+		   :id (fact-base:multi-insert!
+			*base*
+			(insert
+			 (loop for (k . v) in (as-list (dissoc prisoner :strategy))
+			    collect (list k v))
+			 (list :strategy strategy)
+			 (list :source source))))))
+    (fact-base:write! *base*)
+    prisoner))
 
 (defun prisoner-by (&key id strategy source)
   (if id
@@ -57,10 +59,13 @@
       (let ((new (+ (third old) by)))
 
 	(fact-base:change! *base* old (list id key new))
+	(fact-base:write! *base*)
 	new))))
 
 (defun level-up! (game-stage)
-  (fact-base:insert-if-unique! *base* (list -1 :game-stage game-stage)))
+  (fact-base:insert-if-unique! *base* (list -1 :game-stage game-stage))
+  (fact-base:write! *base*)
+  nil)
 
 (defun game-settings ()
   (facts->map (fact-base:for-all `(-1 ?k ?v) :in *base* :collect (list -1 ?k ?v))))
