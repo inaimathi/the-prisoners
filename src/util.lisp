@@ -46,12 +46,20 @@
 		 (== (subseq elem 0 l) prefix))
        do (return elem))))
 
+(defun repackage-symbol (package thing)
+  (if (and (symbolp thing)
+	   (not (keywordp thing))
+	   (not (== package (symbol-package thing))))
+      (intern (symbol-name thing) package)
+      thing))
+
 (defun eval-into-package (package)
   (let ((*package* (find-package package))
 	(form (read)))
     (walk
-     (fn (k &optional (v nil supplied?))
-	 (if (and (symbolp atom) (not (== *package* (symbol-package atom))))
-	     (intern (symbol-name atom) *package*)
-	     atom))
+     (fn (k &optional (v nil v-supplied?))
+	 (if v-supplied?
+	     (cons (repackage-symbol *package* k)
+		   (repackage-symbol *package* v))
+	     (repackage-symbol *package* k)))
      form)))

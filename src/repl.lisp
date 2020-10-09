@@ -58,7 +58,8 @@
 
   (let ((prisoner (first-living-prisoner))
 	(game-levels))
-    (cond ((and prisoner (> (lookup prisoner :score) 10))
+    (cond ((or (and prisoner (> (lookup prisoner :score) 10))
+	       (== :strategies (lookup (game-settings) :game-stage)))
 	   (level-up! :strategies)
 	   (format t "~%You've done well. You can keep going. Or...~%")
 	   (format t "I can let you shape the minds of your prisoners.~%")
